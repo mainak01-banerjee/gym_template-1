@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FORGE Athletic — Strength Training Gym</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --charcoal: #121417;
+    --charcoal-2: #1b1e23;
+    --charcoal-3: #23272d;
+    --steel: #3a4750;
+    --steel-light: #5b6b76;
+    --ember: #ff5a1f;
+    --ember-2: #ff7a3d;
+    --amber: #e8a838;
+    --bone: #f2efe8;
+    --muted: #9aa1a8;
+    --line: rgba(242,239,232,0.09);
+    --shadow: 0 20px 50px rgba(0,0,0,0.45);
+    --radius: 4px;
+  }
+
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+
+  body{
+    background: var(--charcoal);
+    color: var(--bone);
+    font-family: 'Inter', sans-serif;
+    overflow-x: hidden;
+    line-height: 1.5;
+  }
+
+  h1,h2,h3, .display{
+    font-family: 'Bebas Neue', sans-serif;
+    letter-spacing: 0.03em;
+    line-height: 0.95;
+    font-weight: 400;
+  }
+
+  .mono{ font-family: 'JetBrains Mono', monospace; }
+
+  a{ color: inherit; text-decoration: none; }
+  img{ display:block; max-width:100%; }
+  ul{ list-style:none; }
+  button{ font-family: inherit; cursor:pointer; border:none; background:none; color:inherit; }
+
+  .wrap{
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+
+  /* ---------- reveal animation ---------- */
+  .reveal{
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity 0.8s cubic-bezier(.2,.7,.3,1), transform 0.8s cubic-bezier(.2,.7,.3,1);
+  }
+  .reveal.in{ opacity:1; transform: translateY(0); }
+
+  @media (prefers-reduced-motion: reduce){
+    .reveal{ opacity:1; transform:none; transition:none; }
+    html{ scroll-behavior:auto; }
+  }
+
+  /* ---------- nav ---------- */
+  header{
+    position: fixed;
+    top:0; left:0; right:0;
+    z-index: 200;
+    padding: 22px 0;
+    transition: all 0.35s ease;
+  }
+  header.scrolled{
+    padding: 14px 0;
+    background: rgba(18,20,23,0.85);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--line);
+  }
+  nav{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .logo{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-family:'Bebas Neue', sans-serif;
+    font-size: 1.7rem;
+    letter-spacing: 0.06em;
+  }
+  .logo svg{ width:28px; height:28px; flex-shrink:0; }
+  .logo span{ color: var(--ember); }
+
+  .nav-links{
+    display:flex;
+    align-items:center;
+    gap: 40px;
+  }
+  .nav-links a{
+    font-size: 0.82rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.11em;
+    color: var(--muted);
+    position: relative;
+    padding-bottom: 4px;
+    transition: color 0.25s ease;
+  }
+  .nav-links a::after{
+    content:'';
+    position:absolute;
+    left:0; bottom:0;
+    width:0; height:2px;
+    background: var(--ember);
+    transition: width 0.25s ease;
+  }
+  .nav-links a:hover{ color: var(--bone); }
+  .nav-links a:hover::after{ width:100%; }
+
+  .btn{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    padding: 14px 28px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    border-radius: var(--radius);
+    transition: all 0.25s ease;
+    white-space: nowrap;
+  }
+  .btn-primary{
+    background: var(--ember);
+    color: #14161a;
+  }
+  .btn-primary:hover{
+    background: var(--ember-2);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(255,90,31,0.35);
+  }
+  .btn-ghost{
+    border: 1px solid var(--steel-light);
+    color: var(--bone);
+  }
+  .btn-ghost:hover{
+    border-color: var(--bone);
+    background: rgba(242,239,232,0.06);
+  }
+
+  .burger{ display:none; width:26px; height:20px; position:relative; }
+  .burger span{
+    position:absolute; left:0; right:0; height:2px; background:var(--bone);
+    transition: all 0.3s ease;
+  }
+  .burger span:nth-child(1){ top:0; }
+  .burger span:nth-child(2){ top:9px; }
+  .burger span:nth-child(3){ top:18px; }
+  .burger.open span:nth-child(1){ transform: translateY(9px) rotate(45deg); }
+  .burger.open span:nth-child(2){ opacity:0; }
+  .burger.open span:nth-child(3){ transform: translateY(-9px) rotate(-45deg); }
+
+  .mobile-panel{
+    position: fixed;
+    top: 0; right: -100%;
+    width: 78%; max-width: 320px; height: 100vh;
+    background: var(--charcoal-2);
+    z-index: 250;
+    padding: 100px 32px 32px;
+    transition: right 0.4s cubic-bezier(.2,.8,.3,1);
+    border-left: 1px solid var(--line);
+  }
+  .mobile-panel.open{ right:0; }
+  .mobile-panel a{
+    display:block;
+    padding: 16px 0;
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 600;
+    border-bottom: 1px solid var(--line);
+    color: var(--bone);
+  }
+  .scrim{
+    position: fixed; inset:0; background: rgba(0,0,0,0.5);
+    z-index: 220; opacity:0; pointer-events:none; transition: opacity 0.3s ease;
+  }
+  .scrim.open{ opacity:1; pointer-events:auto; }
+
+  /* ---------- hero ---------- */
+  .hero{
+    position: relative;
+    min-height: 100vh;
+    display:flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    isolation: isolate;
+  }
+  .hero-bg{
+    position: absolute; inset:0;
+    z-index:-2;
+    background-image:
+      linear-gradient(180deg, rgba(18,20,23,0.55) 0%, rgba(18,20,23,0.35) 35%, rgba(18,20,23,0.94) 92%),
+      url('https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=1800&q=80&auto=format&fit=crop');
+    background-size: cover;
+    background-position: center 30%;
+  }
+  .hero-content{
+    padding: 220px 0 80px;
+  }
+  .eyebrow{
+    display:flex;
+    align-items:center;
+    gap: 12px;
+    font-family:'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ember-2);
+    margin-bottom: 22px;
+  }
+  .eyebrow::before{
+    content:'';
+    width: 34px; height:1px;
+    background: var(--ember-2);
+  }
+  .hero h1{
+    font-size: clamp(3.4rem, 9vw, 7.6rem);
+    color: var(--bone);
+    max-width: 14ch;
+  }
+  .hero h1 em{
+    font-style: normal;
+    color: var(--ember);
+  }
+  .hero p{
+    max-width: 480px;
+    margin-top: 26px;
+    color: var(--muted);
+    font-size: 1.05rem;
+  }
+  .hero-cta{
+    display:flex;
+    gap: 18px;
+    margin-top: 40px;
+    flex-wrap: wrap;
+  }
+
+  .stats-strip{
+    border-top: 1px solid var(--line);
+    background: rgba(18,20,23,0.6);
+    backdrop-filter: blur(6px);
+  }
+  .stats-strip .wrap{
+    display:grid;
+    grid-template-columns: repeat(4,1fr);
+  }
+  .stat{
+    padding: 26px 0;
+    border-right: 1px solid var(--line);
+    text-align:center;
+  }
+  .stat:last-child{ border-right:none; }
+  .stat b{
+    display:block;
+    font-family:'JetBrains Mono', monospace;
+    font-size: clamp(1.4rem, 3vw, 2rem);
+    color: var(--ember-2);
+  }
+  .stat span{
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* ---------- section heads ---------- */
+  section{ padding: 130px 0; }
+  .section-head{
+    display:flex;
+    justify-content: space-between;
+    align-items:flex-end;
+    gap: 40px;
+    margin-bottom: 64px;
+    flex-wrap: wrap;
+  }
+  .tag{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ember-2);
+    display:flex; align-items:center; gap:10px;
+    margin-bottom: 16px;
+  }
+  .tag::before{ content:''; width:22px; height:1px; background:var(--ember-2); }
+  .section-head h2{
+    font-size: clamp(2.4rem, 5vw, 3.6rem);
+    max-width: 12ch;
+  }
+  .section-head p{
+    max-width: 380px;
+    color: var(--muted);
+    padding-bottom: 6px;
+  }
+
+  /* ---------- programs ---------- */
+  .programs-grid{
+    display:grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+  }
+  .program-card{
+    background: var(--charcoal-2);
+    padding: 40px 30px;
+    transition: background 0.3s ease, transform 0.3s ease;
+    position:relative;
+  }
+  .program-card:hover{
+    background: var(--charcoal-3);
+    transform: translateY(-6px);
+  }
+  .program-card .num{
+    font-family:'JetBrains Mono', monospace;
+    color: var(--steel-light);
+    font-size: 0.8rem;
+  }
+  .program-card svg{
+    width: 34px; height:34px;
+    margin: 22px 0 20px;
+    color: var(--ember);
+  }
+  .program-card h3{
+    font-size: 1.5rem;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    letter-spacing: 0.02em;
+  }
+  .program-card p{
+    color: var(--muted);
+    font-size: 0.92rem;
+  }
+
+  /* ---------- gallery ---------- */
+  .gallery-section{ padding-bottom: 100px; }
+  .gallery-controls{
+    display:flex;
+    gap: 12px;
+  }
+  .arrow-btn{
+    width: 52px; height:52px;
+    border: 1px solid var(--steel-light);
+    border-radius: 50%;
+    display:flex; align-items:center; justify-content:center;
+    transition: all 0.25s ease;
+  }
+  .arrow-btn:hover{
+    background: var(--ember);
+    border-color: var(--ember);
+    color: #14161a;
+  }
+  .arrow-btn svg{ width:20px; height:20px; }
+
+  .gallery-track{
+    display:flex;
+    gap: 22px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding-bottom: 26px;
+    cursor: grab;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    user-select: none;
+  }
+  .gallery-track.dragging{ cursor: grabbing; scroll-snap-type: none; }
+  .gallery-track::-webkit-scrollbar{ display:none; }
+
+  .gallery-item{
+    position: relative;
+    flex: 0 0 auto;
+    width: min(78vw, 380px);
+    aspect-ratio: 3/4;
+    border-radius: var(--radius);
+    overflow: hidden;
+    scroll-snap-align: start;
+    background: var(--charcoal-3);
+  }
+  .gallery-item img{
+    width:100%; height:100%; object-fit:cover;
+    transition: transform 0.6s ease;
+    pointer-events: none;
+    -webkit-user-drag: none;
+  }
+  .gallery-item:hover img{ transform: scale(1.06); }
+  .gallery-item .caption{
+    position:absolute; left:0; right:0; bottom:0;
+    padding: 22px 20px;
+    background: linear-gradient(180deg, transparent, rgba(0,0,0,0.85));
+  }
+  .gallery-item .caption .idx{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--ember-2);
+    letter-spacing: 0.1em;
+  }
+  .gallery-item .caption h4{
+    font-family:'Bebas Neue', sans-serif;
+    font-size: 1.5rem;
+    letter-spacing: 0.02em;
+    margin-top: 4px;
+  }
+
+  .progress-track{
+    height: 2px;
+    background: var(--line);
+    margin-top: 10px;
+    position: relative;
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .progress-fill{
+    position:absolute; top:0; left:0; height:100%;
+    width: 20%;
+    background: var(--ember);
+    border-radius: 2px;
+    transition: transform 0.15s ease, width 0.15s ease;
+  }
+
+  /* ---------- plans ---------- */
+  .plans-section{ background: var(--charcoal-2); }
+  .plans-grid{
+    display:grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 26px;
+  }
+  .plan-card{
+    background: var(--charcoal);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 42px 34px;
+    position: relative;
+    display:flex;
+    flex-direction: column;
+    transition: transform 0.3s ease, border-color 0.3s ease;
+  }
+  .plan-card:hover{ transform: translateY(-8px); border-color: var(--steel-light); }
+  .plan-card.featured{
+    background: linear-gradient(165deg, var(--charcoal-3), var(--charcoal));
+    border-color: var(--ember);
+    box-shadow: var(--shadow);
+  }
+  .plan-badge{
+    position:absolute; top:-13px; right: 34px;
+    background: var(--ember);
+    color: #14161a;
+    font-family:'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    font-weight:700;
+    letter-spacing: 0.1em;
+    padding: 6px 14px;
+    border-radius: 20px;
+    text-transform: uppercase;
+  }
+  .plates{
+    display:flex;
+    gap: 6px;
+    margin-bottom: 22px;
+  }
+  .plate{
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    border: 3px solid var(--steel-light);
+  }
+  .plate.filled{ border-color: var(--ember); background: rgba(255,90,31,0.12); }
+  .plan-name{
+    font-size: 1.9rem;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .plan-desc{ color: var(--muted); font-size: 0.88rem; margin-bottom: 24px; }
+  .plan-price{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 2.6rem;
+    color: var(--bone);
+    margin-bottom: 4px;
+  }
+  .plan-price span{
+    font-size: 0.95rem;
+    color: var(--muted);
+    font-weight:400;
+  }
+  .plan-cycle{
+    font-size: 0.72rem;
+    color: var(--steel-light);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 28px;
+  }
+  .plan-features{
+    margin-bottom: 32px;
+    flex-grow:1;
+  }
+  .plan-features li{
+    display:flex;
+    align-items:flex-start;
+    gap: 10px;
+    padding: 9px 0;
+    border-top: 1px solid var(--line);
+    font-size: 0.9rem;
+    color: var(--bone);
+  }
+  .plan-features li:first-child{ border-top:none; }
+  .plan-features li svg{ width:16px; height:16px; margin-top:2px; color: var(--ember); flex-shrink:0; }
+  .plan-card .btn{ width:100%; }
+
+  /* ---------- CTA ---------- */
+  .cta{
+    position:relative;
+    padding: 130px 0;
+    text-align:center;
+    overflow:hidden;
+  }
+  .cta::before{
+    content:'';
+    position:absolute; inset:0;
+    background:
+      repeating-linear-gradient(45deg, rgba(255,90,31,0.05) 0 18px, transparent 18px 36px);
+    z-index:-1;
+  }
+  .cta h2{
+    font-size: clamp(2.6rem, 6vw, 5rem);
+    max-width: 16ch;
+    margin: 0 auto 26px;
+  }
+  .cta p{ color: var(--muted); max-width: 460px; margin: 0 auto 36px; }
+  .cta .hero-cta{ justify-content:center; }
+
+  /* ---------- footer ---------- */
+  footer{
+    border-top: 1px solid var(--line);
+    padding: 60px 0 30px;
+  }
+  .footer-top{
+    display:flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 40px;
+    padding-bottom: 46px;
+  }
+  .footer-col h4{
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    margin-bottom: 18px;
+  }
+  .footer-col a, .footer-col p{
+    display:block;
+    color: var(--bone);
+    font-size: 0.92rem;
+    margin-bottom: 10px;
+  }
+  .footer-col a:hover{ color: var(--ember-2); }
+  .footer-bottom{
+    display:flex;
+    justify-content: space-between;
+    align-items:center;
+    padding-top: 26px;
+    border-top: 1px solid var(--line);
+    font-size: 0.78rem;
+    color: var(--steel-light);
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  /* ---------- responsive ---------- */
+  @media (max-width: 980px){
+    .nav-links{ display:none; }
+    .burger{ display:block; }
+    .programs-grid{ grid-template-columns: repeat(2,1fr); }
+    .plans-grid{ grid-template-columns: 1fr; max-width: 460px; margin: 0 auto; }
+    .stats-strip .wrap{ grid-template-columns: repeat(2,1fr); }
+    .stat:nth-child(2){ border-right:none; }
+  }
+  @media (max-width: 620px){
+    .wrap{ padding: 0 20px; }
+    section{ padding: 90px 0; }
+    .hero-content{ padding-top: 180px; }
+    .programs-grid{ grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="scrim" id="scrim"></div>
+
+<header id="siteHeader">
+  <div class="wrap">
+    <nav>
+      <a href="#top" class="logo">
+        <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2"/></svg>
+        FORGE<span>.</span>
+      </a>
+      <div class="nav-links">
+        <a href="#programs">Programs</a>
+        <a href="#gallery">Gallery</a>
+        <a href="#plans">Plans</a>
+        <a href="#contact">Contact</a>
+      </div>
+      <div style="display:flex; align-items:center; gap:18px;">
+        <a href="#plans" class="btn btn-primary" style="display:none;" id="navCta">Join Now</a>
+        <button class="burger" id="burgerBtn" aria-label="Open menu"><span></span><span></span><span></span></button>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<div class="mobile-panel" id="mobilePanel">
+  <a href="#programs">Programs</a>
+  <a href="#gallery">Gallery</a>
+  <a href="#plans">Plans</a>
+  <a href="#contact">Contact</a>
+  <a href="#plans" class="btn btn-primary" style="margin-top:24px; justify-content:center;">Join Now</a>
+</div>
+
+<div id="top"></div>
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="wrap hero-content">
+    <div class="eyebrow reveal">Est. 2013 · Open 24/7</div>
+    <h1 class="reveal">FORGE YOUR <em>STRENGTH.</em><br>OWN THE GRIND.</h1>
+    <p class="reveal">A no-nonsense training ground built for people who show up. Free weights, real coaching, and a community that pushes you past the plateau.</p>
+    <div class="hero-cta reveal">
+      <a href="#plans" class="btn btn-primary">Start Training</a>
+      <a href="#gallery" class="btn btn-ghost">See The Gym</a>
+    </div>
+  </div>
+  <div class="stats-strip">
+    <div class="wrap">
+      <div class="stat"><b>1,200+</b><span>Active Members</span></div>
+      <div class="stat"><b>40+</b><span>Weekly Classes</span></div>
+      <div class="stat"><b>18</b><span>Certified Coaches</span></div>
+      <div class="stat"><b>24/7</b><span>Access Every Day</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="programs">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div>
+        <div class="tag">What We Train</div>
+        <h2>Programs built around real results</h2>
+      </div>
+      <p>Every program is coached, scalable, and designed to fit around your schedule — not the other way around.</p>
+    </div>
+
+    <div class="programs-grid reveal">
+      <div class="program-card">
+        <div class="num">01</div>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 8v8M2 10v4M20 8v8M22 10v4M6 12h12" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <h3>Strength</h3>
+        <p>Barbell-focused programming built on progressive overload — squat, bench, deadlift, press.</p>
+      </div>
+      <div class="program-card">
+        <div class="num">02</div>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z" stroke-linejoin="round"/></svg>
+        <h3>HIIT &amp; Conditioning</h3>
+        <p>High-output interval sessions that torch fat and build an engine that doesn't quit.</p>
+      </div>
+      <div class="program-card">
+        <div class="num">03</div>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="7" cy="7" r="2"/><circle cx="17" cy="17" r="2"/><path d="M9 7h6l2 10H7L9 7z" stroke-linejoin="round"/></svg>
+        <h3>Powerlifting</h3>
+        <p>Meet prep, technical coaching, and periodized cycles for lifters chasing a total.</p>
+      </div>
+      <div class="program-card">
+        <div class="num">04</div>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21c-4-3-8-6.5-8-11a5 5 0 0 1 9-3 5 5 0 0 1 9 3c0 4.5-4 8-8 11-.7.5-1.3.5-2 0z"/></svg>
+        <h3>Mobility &amp; Recovery</h3>
+        <p>Guided stretching, soft tissue work, and recovery protocols to keep you training injury-free.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="gallery" class="gallery-section">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div>
+        <div class="tag">Inside The Forge</div>
+        <h2>A look at the floor</h2>
+      </div>
+      <div class="gallery-controls">
+        <button class="arrow-btn" id="galPrev" aria-label="Previous image">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <button class="arrow-btn" id="galNext" aria-label="Next image">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="gallery-track reveal" id="galleryTrack">
+      <div class="gallery-item">
+        <img src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=800&q=80&auto=format&fit=crop" alt="Lifter chalking up before a heavy barbell lift" draggable="false">
+        <div class="caption"><div class="idx">01 / 08</div><h4>The Lift</h4></div>
+      </div>
+      <div class="gallery-item">
+        <img src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&q=80&auto=format&fit=crop" alt="Open floor surrounded by free weight equipment" draggable="false">
+        <div class="caption"><div class="idx">02 / 08</div><h4>The Floor</h4></div>
+      </div>
+      <div class="gallery-item">
+        <img src="https://images.unsplash.com/photo-1571902943202-507ec2618e8f?w=800&q=80&auto=format&fit=crop" alt="Row of gym equipment inside the training room" draggable="false">
+        <div class="caption"><div class="idx">03 / 08</div><h4>The Setup</h4></div>
+      </div>
+      <div class="gallery-item">
+        <img src="https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?w=800&q=80&auto=format&fit=crop" alt="Athlete working through a training set" draggable="false">
+        <div class="caption"><div class="idx">04 / 08</div><h4>The Work</h4></div>
+      </div>
+      <div class="gallery-item">
+        <img src="https://images.unsplash.com/photo-1605296867304-46d5465a13f1?w=800&q=80&auto=format&fit=crop" alt="Lifter resting on a loaded barbell between sets" draggable="false">
+        <div class="caption"><div class="idx">05 / 08</div><h4>The Rest</h4></div>
+      </div>
+      <div class="gallery-item">
+        <img src="https://images.unsplash.com/photo-1637430308606-86576d8fef3c?w=800&q=80&auto=format&fit=crop" alt="Wide view of the gym with a row of exercise machines" draggable="false">
+        <div class="caption"><div class="idx">06 / 08</div><h4>The Space</h4></div>
+      </div>
+      <div class="gallery-item">
+        <img src="https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=800&q=80&auto=format&fit=crop" alt="Athlete carrying a heavy dumbbell across the floor" draggable="false">
+        <div class="caption"><div class="idx">07 / 08</div><h4>The Carry</h4></div>
+      </div>
+      <div class="gallery-item">
+        <img src="https://images.unsplash.com/photo-1521805103424-d8f8430e8933?w=800&q=80&auto=format&fit=crop" alt="Barbell resting on tiled gym flooring" draggable="false">
+        <div class="caption"><div class="idx">08 / 08</div><h4>The Iron</h4></div>
+      </div>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="galProgress"></div></div>
+  </div>
+</section>
+
+<section id="plans" class="plans-section">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div>
+        <div class="tag">Membership</div>
+        <h2>Pick your load</h2>
+      </div>
+      <p>No lock-in contracts. Upgrade, downgrade, or cancel any time — the only thing we ask is that you show up.</p>
+    </div>
+
+    <div class="plans-grid reveal">
+      <div class="plan-card">
+        <div class="plates">
+          <div class="plate filled"></div><div class="plate"></div><div class="plate"></div>
+        </div>
+        <div class="plan-name">Starter</div>
+        <div class="plan-desc">Full gym access for lifters who train solo.</div>
+        <div class="plan-price">$39<span>/mo</span></div>
+        <div class="plan-cycle">Billed Monthly</div>
+        <ul class="plan-features">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg> 24/7 floor access</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg> Free weights &amp; machines</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg> Locker room access</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg> App workout tracking</li>
+        </ul>
+        <a href="#contact" class="btn btn-ghost">Choose Starter</a>
+      </div>
+
+      <div class="plan-card featured">
+        <div class="plan-badge">Most Popular</div>
+        <div class="plates">
+          <div class="plate filled"></div><div class="plate filled"></div><div class="plate"></div>
+        </div>
+        <div class="plan-name">Pro</div>
+        <div class="plan-desc">For lifters who want coaching in the mix.</div>
+        <div class="plan-price">$69<span>/mo</span></div>
+        <div class="plan-cycle">Billed Monthly</div>
+        <ul class="plan-features">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg> Everything in Starter</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg> Unlimited group classes</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg> Monthly coach check-in</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg> Guest passes x2</li>
+        </ul>
+        <a href="#contact" class="btn btn-primary">Choose Pro</a>
+      </div>
+
+      <div class="plan-card">
+        <div class="plates">
+          <div class="plate filled"></div><div class="plate filled"></div><div class="plate filled"></div>
+        </div>
+        <div class="plan-name">Elite</div>
+        <div class="plan-desc">Full access plus dedicated 1-on-1 programming.</div>
+        <div class="plan-price">$129<span>/mo</span></div>
+        <div class="plan-cycle">Billed Monthly</div>
+        <ul class="plan-features">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg> Everything in Pro</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg> Weekly 1-on-1 coaching</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg> Custom meal &amp; macro plan</li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg> Priority class booking</li>
+        </ul>
+        <a href="#contact" class="btn btn-ghost">Choose Elite</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cta" id="contact">
+  <div class="wrap">
+    <div class="reveal">
+      <h2>Your first session is on us.</h2>
+      <p>Walk in, meet a coach, and see the floor for yourself. No pressure, no pitch — just an honest look at what training here feels like.</p>
+      <div class="hero-cta">
+        <a href="#" class="btn btn-primary">Claim Free Session</a>
+        <a href="tel:+10000000000" class="btn btn-ghost">Call the Gym</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="footer-top">
+      <div class="footer-col" style="max-width:260px;">
+        <a href="#top" class="logo" style="margin-bottom:14px;">
+          <svg viewBox="0 0 24 24" fill="none" width="24" height="24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2"/></svg>
+          FORGE<span style="color:var(--ember)">.</span>
+        </a>
+        <p style="color:var(--muted); font-size:0.88rem;">A strength-first gym for people who train with intent.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Explore</h4>
+        <a href="#programs">Programs</a>
+        <a href="#gallery">Gallery</a>
+        <a href="#plans">Plans</a>
+      </div>
+      <div class="footer-col">
+        <h4>Visit</h4>
+        <p>412 Foundry Street</p>
+        <p>Open 24 hours, 7 days</p>
+      </div>
+      <div class="footer-col">
+        <h4>Contact</h4>
+        <a href="tel:+10000000000">(000) 000-0000</a>
+        <a href="mailto:train@forgeathletic.co">train@forgeathletic.co</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Forge Athletic. All rights reserved.</span>
+      <span>Built to train, not to impress.</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // header shrink on scroll
+  const header = document.getElementById('siteHeader');
+  const navCta = document.getElementById('navCta');
+  window.addEventListener('scroll', () => {
+    if(window.scrollY > 40){ header.classList.add('scrolled'); navCta.style.display='inline-flex'; }
+    else { header.classList.remove('scrolled'); navCta.style.display='none'; }
+  });
+
+  // mobile menu
+  const burger = document.getElementById('burgerBtn');
+  const panel = document.getElementById('mobilePanel');
+  const scrim = document.getElementById('scrim');
+  function toggleMenu(){
+    burger.classList.toggle('open');
+    panel.classList.toggle('open');
+    scrim.classList.toggle('open');
+  }
+  burger.addEventListener('click', toggleMenu);
+  scrim.addEventListener('click', toggleMenu);
+  panel.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+    if(panel.classList.contains('open')) toggleMenu();
+  }));
+
+  // reveal on scroll
+  const revealEls = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { threshold: 0.15 });
+  revealEls.forEach(el => io.observe(el));
+
+  // gallery: drag to scroll + arrows + progress
+  const track = document.getElementById('galleryTrack');
+  const prevBtn = document.getElementById('galPrev');
+  const nextBtn = document.getElementById('galNext');
+  const progressFill = document.getElementById('galProgress');
+
+  let isDown = false, startX, scrollStart;
+
+  track.addEventListener('mousedown', (e) => {
+    isDown = true;
+    track.classList.add('dragging');
+    startX = e.pageX;
+    scrollStart = track.scrollLeft;
+  });
+  window.addEventListener('mouseup', () => { isDown = false; track.classList.remove('dragging'); });
+  window.addEventListener('mouseleave', () => { isDown = false; track.classList.remove('dragging'); });
+  window.addEventListener('mousemove', (e) => {
+    if(!isDown) return;
+    e.preventDefault();
+    const dx = e.pageX - startX;
+    track.scrollLeft = scrollStart - dx;
+  });
+
+  function cardStep(){
+    const card = track.querySelector('.gallery-item');
+    return card ? card.getBoundingClientRect().width + 22 : 300;
+  }
+  prevBtn.addEventListener('click', () => track.scrollBy({ left: -cardStep(), behavior: 'smooth' }));
+  nextBtn.addEventListener('click', () => track.scrollBy({ left: cardStep(), behavior: 'smooth' }));
+
+  function updateProgress(){
+    const max = track.scrollWidth - track.clientWidth;
+    const pct = max > 0 ? (track.scrollLeft / max) * 100 : 0;
+    const fillWidth = Math.max(12, 100 / (track.scrollWidth / track.clientWidth));
+    progressFill.style.width = fillWidth + '%';
+    progressFill.style.transform = `translateX(${(pct/100) * (100/fillWidth - 1) * 100}%)`;
+  }
+  track.addEventListener('scroll', updateProgress);
+  window.addEventListener('resize', updateProgress);
+  updateProgress();
+
+  // touch support (native momentum scroll already works via overflow-x + snap,
+  // this just prevents accidental link-drag issues)
+  track.addEventListener('touchstart', () => track.classList.add('dragging'));
+  track.addEventListener('touchend', () => track.classList.remove('dragging'));
+</script>
+
+</body>
+</html>
